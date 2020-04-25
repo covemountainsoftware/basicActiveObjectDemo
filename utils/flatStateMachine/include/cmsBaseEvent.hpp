@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) <2019-2020> <Matthew Eshleman - https://covemountainsoftware.com>
@@ -19,3 +20,33 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+#ifndef CMSBASEEVENT_HPP
+#define CMSBASEEVENT_HPP
+
+#include <type_traits>
+
+namespace CMS
+{
+
+/**
+ * @brief The BaseEvent POD struct - users should derive from
+ *        this struct if additional event payload fields are
+ *        desired.
+ */
+template<typename SignalType>
+struct BaseEvent
+{
+    static_assert(std::is_integral<SignalType>::value, "The type SignalType must be an integral type, such as uint8_t, uint32_t, etc.");
+    static_assert(std::is_unsigned<SignalType>::value, "The type SignalType must be an unsigned integral type.");
+
+    BaseEvent() = default;
+    constexpr explicit BaseEvent(SignalType sig) : signal(sig) {}
+
+    SignalType signal;
+};
+
+} //namespace CMS
+
+#endif // CMSEVENT_HPP

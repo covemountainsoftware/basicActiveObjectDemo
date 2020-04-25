@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) <2019-2020> <Matthew Eshleman - https://covemountainsoftware.com>
@@ -19,3 +20,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+#ifndef ACTIVEOBJECTUNITTESTINGDEMO_TESTEVENT_HPP
+#define ACTIVEOBJECTUNITTESTINGDEMO_TESTEVENT_HPP
+
+#include <cstdint>
+#include "cmsBaseEvent.hpp"
+#include "testSignals.hpp"
+
+// a trivial no-payload event type for testing
+using TestEvent = CMS::BaseEvent<uint8_t>;
+
+#endif //ACTIVEOBJECTUNITTESTINGDEMO_TESTEVENT_HPP

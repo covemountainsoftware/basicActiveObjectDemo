@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) <2019-2020> <Matthew Eshleman - https://covemountainsoftware.com>
@@ -19,3 +20,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+#ifndef ACTIVEOBJECTUNITTESTINGDEMO_TESTFLATSTATEMACHINE_HPP
+#define ACTIVEOBJECTUNITTESTINGDEMO_TESTFLATSTATEMACHINE_HPP
+
+#include "cmsFlatStateMachine.hpp"
+#include "testEvent.hpp"
+
+class TestFlatStateMachine : public CMS::FlatStateMachine<TestEvent>
+{
+public:
+    TestFlatStateMachine() = default;
+    virtual ~TestFlatStateMachine() = default;
+
+private:
+    StateRtn InitialPseudoState(const TestEvent* const event) override;
+
+    StateRtn TestStateA(const TestEvent* const event);
+    StateRtn TestStateB(const TestEvent* const event);
+    StateRtn TestStateC(const TestEvent* const event);
+};
+
+#endif //ACTIVEOBJECTUNITTESTINGDEMO_TESTFLATSTATEMACHINE_HPP
