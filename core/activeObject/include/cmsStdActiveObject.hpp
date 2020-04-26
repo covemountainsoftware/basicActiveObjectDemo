@@ -46,7 +46,7 @@ class StdActiveObject : public ActiveObject<EventT, QueueDepth>
 public:
     using LockGuard = std::unique_lock<std::mutex>;
 
-    bool Start(ProcessOption option) override
+    bool Start(ProcessOption option = ProcessOption::WAIT) override
     {
         if (option == ProcessOption::WAIT)
         {
