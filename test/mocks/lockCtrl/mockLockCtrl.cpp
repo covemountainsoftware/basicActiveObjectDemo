@@ -1,27 +1,28 @@
 #include "lockCtrl.h"
-#include <cstdio>
 #include "CppUTestExt/MockSupport.h"
+
+static constexpr const char * MOCK_NAME = "LockCtrl";
 
 bool LockCtrlInit()
 {
-    mock("LockCtrl").actualCall("Init");
-    return static_cast<bool>(mock("LockCtrl").returnIntValueOrDefault(true)); //use IntValue due to bug in CppUTest bool handling.
+    mock(MOCK_NAME).actualCall("Init");
+    return static_cast<bool>(mock(MOCK_NAME).returnIntValueOrDefault(true)); //use IntValue due to bug in CppUTest bool handling.
 }
 
 bool LockCtrlLock()
 {
-    mock("LockCtrl").actualCall("Lock");
-    return static_cast<bool>(mock("LockCtrl").returnIntValueOrDefault(true));
+    mock(MOCK_NAME).actualCall("Lock");
+    return static_cast<bool>(mock(MOCK_NAME).returnIntValueOrDefault(true));
 }
 
 bool LockCtrlUnlock()
 {
-    mock("LockCtrl").actualCall("Unlock");
-    return static_cast<bool>(mock("LockCtrl").returnIntValueOrDefault(true));
+    mock(MOCK_NAME).actualCall("Unlock");
+    return static_cast<bool>(mock(MOCK_NAME).returnIntValueOrDefault(true));
 }
 
 bool LockCtrlSelfTest(LockCtrlSelfTestResult* outResult)
 {
-    mock("LockCtrl").actualCall("SelfTest").withOutputParameter("outResult", outResult);
-    return static_cast<bool>(mock("LockCtrl").returnIntValueOrDefault(true));
+    mock(MOCK_NAME).actualCall("SelfTest").withOutputParameter("outResult", outResult);
+    return static_cast<bool>(mock(MOCK_NAME).returnIntValueOrDefault(true));
 }
