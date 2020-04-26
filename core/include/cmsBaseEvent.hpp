@@ -44,7 +44,7 @@ struct BaseEvent
     BaseEvent() = default;
     constexpr explicit BaseEvent(SignalType sig) : signal(sig) {}
 
-    SignalType signal;
+    SignalType signal{};
 };
 
 } //namespace cms

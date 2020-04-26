@@ -1,0 +1,5 @@
+include_directories(../core/activeObject/include)
+include_directories(../core/flatStateMachine/include)
+include_directories(../core/include)
+include_directories(include)
+add_subdirectory(lockCtrlService)

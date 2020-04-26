@@ -7,3 +7,4 @@ add_compile_options(-Wall -Wextra -Werror)
 
 add_subdirectory(core)
 add_subdirectory(drivers)
+add_subdirectory(services)

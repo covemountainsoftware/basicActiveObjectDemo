@@ -109,6 +109,22 @@ TEST(TestStdActiveObjectTests, a_handled_event)
     mock().checkExpectations();
 }
 
+TEST(TestStdActiveObjectTests, post_urgent_operates_as_expected)
+{
+    InitToA();
+
+    mock("TestStdActiveObject").expectOneCall("A-EXIT").onObject(mUnderTest);
+    mock("TestStdActiveObject").expectOneCall("B-ENTER").onObject(mUnderTest);
+
+    mock("TestStdActiveObject").expectOneCall("B-EXIT").onObject(mUnderTest);
+    mock("TestStdActiveObject").expectOneCall("A-ENTER").onObject(mUnderTest);
+
+    mUnderTest->Post(TestEventT1);
+    mUnderTest->PostUrgent(TestEventT2); //will be processed first, resulting in transition to B
+    ActiveObjectProcess();
+    mock().checkExpectations();
+}
+
 TEST(TestStdActiveObjectTests, tran_a_to_b_behaves_as_expected)
 {
     InitToB();

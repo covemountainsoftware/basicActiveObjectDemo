@@ -29,7 +29,7 @@ SOFTWARE.
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <queue>
+#include <deque>
 
 namespace cms
 {
@@ -68,7 +68,7 @@ public:
         auto queueSize = mQueue.size();
         if (queueSize < QueueDepth)
         {
-            mQueue.push(event);
+            mQueue.push_back(event);
             lockQueue.unlock();
 
             if (queueSize == 0)
@@ -85,9 +85,23 @@ public:
 
     bool PostUrgent(const EventT& event) override
     {
-        (void)event;
-        //TODO
-        return false;
+        LockGuard lockQueue(mMutex);
+        auto queueSize = mQueue.size();
+        if (queueSize < QueueDepth)
+        {
+            mQueue.push_front(event);
+            lockQueue.unlock();
+
+            if (queueSize == 0)
+            {
+                mCondVar.notify_one();
+            }
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     bool SetPriority(ThreadPriority priority) override
@@ -118,7 +132,7 @@ public:
         }
 
         event = mQueue.front();
-        mQueue.pop();
+        mQueue.pop_front();
 
         lockQueue.unlock();
         FlatStateMachine<EventT>::ProcessEvent(&event);
@@ -129,7 +143,7 @@ private:
     std::thread* mThread = nullptr;
     std::condition_variable mCondVar;
     std::mutex mMutex;
-    std::queue<EventT> mQueue;
+    std::deque<EventT> mQueue;
 };
 
 } // namespace cms
