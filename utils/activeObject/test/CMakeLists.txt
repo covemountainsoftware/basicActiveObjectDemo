@@ -11,16 +11,17 @@ else()
     message(STATUS "Found CppUTest version ${CPPUTEST_VERSION}")
 endif()
 
-set(TEST_APP_NAME cmsFlatStateMachineTests)
-set(TEST_SOURCES cmsFlatStateMachineTests.cpp main.cpp testFlatStateMachine.cpp)
+set(TEST_APP_NAME cmsActiveObjectTests)
+set(TEST_SOURCES cmsActiveObjectTests.cpp main.cpp TestStdActiveObject.cpp TestStdActiveObject.hpp)
 
-add_compile_options(-Wall -Wextra -Werror)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
 include_directories(${CPPUTEST_INCLUDE_DIRS})
 link_directories(${CPPUTEST_LIBRARIES})
 
 add_executable(${TEST_APP_NAME} ${TEST_SOURCES})
-target_link_libraries(${TEST_APP_NAME} ${APP_LIB_NAME} ${CPPUTEST_LDFLAGS})
+target_link_libraries(${TEST_APP_NAME} ${APP_LIB_NAME} ${CPPUTEST_LDFLAGS} Threads::Threads)
 
 # (5) Run the test once the build is done
 add_custom_command(TARGET ${TEST_APP_NAME} COMMAND ./${TEST_APP_NAME} POST_BUILD)

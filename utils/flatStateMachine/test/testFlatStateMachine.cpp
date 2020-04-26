@@ -25,7 +25,7 @@ SOFTWARE.
 #include "testFlatStateMachine.hpp"
 #include "CppUTestExt/MockSupport.h"
 
-using namespace CMS;
+using namespace cms;
 
 TestFlatStateMachine::StateRtn TestFlatStateMachine::InitialPseudoState(const TestEvent* const)
 {

@@ -30,6 +30,6 @@ SOFTWARE.
 #include "testSignals.hpp"
 
 // a trivial no-payload event type for testing
-using TestEvent = CMS::BaseEvent<uint8_t>;
+using TestEvent = cms::BaseEvent<uint8_t>;
 
 #endif //ACTIVEOBJECTUNITTESTINGDEMO_TESTEVENT_HPP

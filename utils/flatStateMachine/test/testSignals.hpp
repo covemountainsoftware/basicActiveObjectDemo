@@ -29,7 +29,7 @@ SOFTWARE.
 
 enum ConcreteTestSignals : uint32_t
 {
-    SIG_T1 = CMS::StandardSignals::SM_BEGIN_USER_SIGNALS,
+    SIG_T1 = cms::StandardSignals::SM_BEGIN_USER_SIGNALS,
     SIG_T2,
     SIG_T3,
 };

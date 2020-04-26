@@ -31,7 +31,7 @@ SOFTWARE.
 #include "cmsBaseEvent.hpp"
 #include "cmsTypeUtils.hpp"
 
-namespace CMS
+namespace cms
 {
 
 /**
@@ -47,8 +47,8 @@ template<typename EventT>
 class FlatStateMachine
 {
 public:
-    static_assert(true == is_base_of_any<CMS::BaseEvent, EventT>::value,
-      "The EventT type must be derived from the type CMS::BaseEvent.");
+    static_assert(true == is_base_of_any<cms::BaseEvent, EventT>::value,
+      "The EventT type must be derived from the type cms::BaseEvent.");
     /**
      * @brief Initialize - method to call to initialize the state machine.
      *                     Must be called before any event processing.
@@ -139,6 +139,6 @@ void FlatStateMachine<EventT>::ProcessEvent(const EventT* const event)
     }
 }
 
-} //namespace CMS
+} //namespace cms
 
 #endif //CMSFLATSTATEMACHINE_HPP

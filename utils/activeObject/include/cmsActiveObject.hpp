@@ -22,31 +22,57 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CMSBASEEVENT_HPP
-#define CMSBASEEVENT_HPP
+#ifndef CMSACTIVEOBJECT_HPP
+#define CMSACTIVEOBJECT_HPP
 
-#include <type_traits>
+#include <cstdint>
+#include "cmsFlatStateMachine.hpp"
 
 namespace cms
 {
 
-/**
- * @brief The BaseEvent POD struct - users should derive from
- *        this struct if additional event payload fields are
- *        desired.
- */
-template<typename SignalType>
-struct BaseEvent
+enum class ThreadPriority
 {
-    static_assert(std::is_integral<SignalType>::value, "The type SignalType must be an integral type, such as uint8_t, uint32_t, etc.");
-    static_assert(std::is_unsigned<SignalType>::value, "The type SignalType must be an unsigned integral type.");
-
-    BaseEvent() = default;
-    constexpr explicit BaseEvent(SignalType sig) : signal(sig) {}
-
-    SignalType signal;
+    IDLE,
+    LOWEST,
+    LOW,
+    NORMAL,
+    HIGH,
+    HIGHEST,
+    TIME_CRITICAL
 };
 
-} //namespace cms
+enum class ProcessOption
+{
+    WAIT,
+    UNIT_TEST
+};
 
-#endif // CMSEVENT_HPP
+template<typename EventT, uint32_t QueueDepth>
+class ActiveObject : public cms::FlatStateMachine<EventT>
+{
+public:
+    virtual bool Start(ProcessOption option = ProcessOption::WAIT) = 0;
+    virtual bool Post(const EventT& event) = 0;
+    virtual bool PostUrgent(const EventT& event) = 0;
+    virtual bool SetPriority(ThreadPriority priority) = 0;
+
+    /**
+     * @brief intended for unit test access only.
+     */
+    virtual bool ProcessOneEvent(ProcessOption option = ProcessOption::WAIT) = 0;
+
+protected:
+    [[noreturn]] void Task()
+    {
+        cms::FlatStateMachine<EventT>::Initialize();
+        while (1)
+        {
+            ProcessOneEvent(ProcessOption::WAIT);
+        }
+    }
+};
+
+} //namespace
+
+#endif //CMSACTIVEOBJECT_HPP

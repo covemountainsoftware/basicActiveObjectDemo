@@ -28,7 +28,7 @@ SOFTWARE.
 #include "cmsFlatStateMachine.hpp"
 #include "testEvent.hpp"
 
-class TestFlatStateMachine : public CMS::FlatStateMachine<TestEvent>
+class TestFlatStateMachine : public cms::FlatStateMachine<TestEvent>
 {
 public:
     TestFlatStateMachine() = default;

@@ -25,7 +25,7 @@ SOFTWARE.
 #ifndef CMSSTANDARDSIGNALS_HPP
 #define CMSSTANDARDSIGNALS_HPP
 
-namespace CMS
+namespace cms
 {
 
 enum StandardSignals
@@ -35,6 +35,6 @@ enum StandardSignals
     SM_BEGIN_USER_SIGNALS
 };
 
-} //namespace CMS
+} //namespace cms
 
 #endif // CMSSTANDARDSIGNALS_HPP

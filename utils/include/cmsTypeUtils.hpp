@@ -3,7 +3,7 @@
 
 #include <type_traits>
 
-namespace CMS
+namespace cms
 {
 
 //"is_base_of_any" via: https://stackoverflow.com/a/32478174/49956
@@ -20,6 +20,6 @@ struct is_base_of_any_helper
 template<template<typename> class C, typename T>
 using is_base_of_any = decltype(is_base_of_any_helper<C>{}(std::declval<const T *>()));
 
-} //namespace CMS
+} //namespace cms
 
 #endif // CMSTYPEUTILS_HPP
