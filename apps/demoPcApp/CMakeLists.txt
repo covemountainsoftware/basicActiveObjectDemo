@@ -5,7 +5,7 @@ include_directories(../../core/include
         ../../services/include
         ../../drivers/hwLockCtrl/include
         ../../core/activeObject/include
-        ../../services/lockCtrlService/include
+        ../../services/hwLockCtrlService/include
         ../../core/flatStateMachine/include)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -13,7 +13,7 @@ find_package(Threads REQUIRED)
 
 add_executable(demoPcApp
         main.cpp
-        ../../services/lockCtrlService/src/hwLockCtrlService.cpp
+        ../../services/hwLockCtrlService/src/hwLockCtrlService.cpp
         ../../drivers/hwLockCtrl/src/hwLockCtrl.c)
 
 target_link_libraries(demoPcApp Threads::Threads)
