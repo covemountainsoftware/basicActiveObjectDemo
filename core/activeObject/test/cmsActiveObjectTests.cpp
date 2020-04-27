@@ -100,6 +100,24 @@ TEST(TestStdActiveObjectTests, init_behaves_as_expected)
     InitToA();
 }
 
+TEST(TestStdActiveObjectTests, processoneevent_returns_false_when_no_events)
+{
+    InitToA();
+    CHECK_FALSE(mUnderTest->ProcessOneEvent(cms::ProcessOption::UNIT_TEST));
+}
+
+TEST(TestStdActiveObjectTests, processoneevent_returns_true_when_event_was_processed)
+{
+    InitToA();
+    mock().ignoreOtherCalls(); //this test is only interested in the return of ProcessOneEvent().
+    mUnderTest->Post(TestEventT1);
+    //first call should return true, as an event is in the queue
+    CHECK_TRUE(mUnderTest->ProcessOneEvent(cms::ProcessOption::UNIT_TEST));
+
+    //while here, second call should return false, as there are no more events in the queue
+    CHECK_FALSE(mUnderTest->ProcessOneEvent(cms::ProcessOption::UNIT_TEST));
+}
+
 TEST(TestStdActiveObjectTests, a_handled_event)
 {
     InitToA();
