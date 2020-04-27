@@ -49,6 +49,10 @@ static void TestSelfTestResultCallback(HwLockCtrlService::SelfTestResult result)
  *         2) Tests the internal state machine of the active object without
  *            internal knowledge of the state machine. Rather, only
  *            by observing the behavior and associated output/results.
+ *         3) Create helper methods to drive the internal "state" to known
+ *            starting points.
+ *         4) Continue to follow software engineering best practices, such
+ *            as adhering to the DRY principle.
  */
 TEST_GROUP(HwLockCtrlServiceTests)
 {
@@ -115,6 +119,11 @@ TEST(HwLockCtrlServiceTests, given_startup_when_created_then_does_not_crash)
 
 TEST(HwLockCtrlServiceTests, given_startup_when_started_then_service_ensures_the_lock_is_locked)
 {
+    //when originally developed, this test contained all the code
+    //in the below helper method. Since this "setup" was needed by
+    //other tests, it was extracted into a helper method.
+    //this pattern of developing tests, discovering the need for common
+    //setup helper methods, takes place throughout coding of these unit tests.
     StartServiceToLocked();
 }
 
@@ -143,7 +152,6 @@ TEST(HwLockCtrlServiceTests, given_unlocked_when_another_unlock_request_then_ser
 TEST(HwLockCtrlServiceTests, given_locked_when_selftest_request_then_service_performs_selftest_emits_results_and_returns_to_locked)
 {
     StartServiceToLocked();
-    mock().clear();
 
     auto passed = HW_LOCK_CTRL_SELF_TEST_PASSED;
     mock(HW_LOCK_CTRL_MOCK).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
@@ -158,7 +166,6 @@ TEST(HwLockCtrlServiceTests, given_locked_when_selftest_request_then_service_per
 TEST(HwLockCtrlServiceTests, given_unlocked_when_selftest_request_then_service_performs_selftest_emits_results_and_returns_to_unlocked)
 {
     StartServiceToUnlocked();
-    mock().clear();
 
     auto passed = HW_LOCK_CTRL_SELF_TEST_PASSED;
     mock(HW_LOCK_CTRL_MOCK).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
@@ -173,7 +180,6 @@ TEST(HwLockCtrlServiceTests, given_unlocked_when_selftest_request_then_service_p
 TEST(HwLockCtrlServiceTests,given_locked_when_selftest_request_which_fails_then_service_still_returns_to_locked)
 {
     StartServiceToLocked();
-    mock().clear();
 
     auto passed = HW_LOCK_CTRL_SELF_TEST_FAILED_POWER;
     mock(HW_LOCK_CTRL_MOCK).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
@@ -188,7 +194,6 @@ TEST(HwLockCtrlServiceTests,given_locked_when_selftest_request_which_fails_then_
 TEST(HwLockCtrlServiceTests, given_unlocked_when_selftest_request_which_fails_then_service_still_returns_to_unlocked)
 {
     StartServiceToUnlocked();
-    mock().clear();
 
     auto passed = HW_LOCK_CTRL_SELF_TEST_FAILED_MOTOR;
     mock(HW_LOCK_CTRL_MOCK).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
