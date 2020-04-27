@@ -22,14 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 /**
- * @brief public header for the Lock Ctrl driver.
+ * @brief public header for the Hw Lock Ctrl driver.
  *        This driver controls a physical electronic
- *        controlled lock. The API is fully synchronous.
+ *        controlled hardware lock.
+ *
+ *        The driver API is fully synchronous.
  */
-#ifndef ACTIVEOBJECTUNITTESTINGDEMO_LOCKCTRL_H
-#define ACTIVEOBJECTUNITTESTINGDEMO_LOCKCTRL_H
+#ifndef ACTIVEOBJECTUNITTESTINGDEMO_HWLOCKCTRL_H
+#define ACTIVEOBJECTUNITTESTINGDEMO_HWLOCKCTRL_H
 
 #include <stdbool.h>
 
@@ -38,47 +39,47 @@ extern "C" {
 #endif
 
 /**
- * @brief LockCtrlSelfTestResult enumerates
+ * @brief HwLockCtrlSelfTestResult enumerates
  *        possible self test results.
  */
-enum LockCtrlSelfTestResult
+typedef enum HwLockCtrlSelfTestResult
 {
-    LOCK_CTRL_SELF_TEST_PASSED,
-    LOCK_CTRL_SELF_TEST_FAILED_POWER,
-    LOCK_CTRL_SELF_TEST_FAILED_MOTOR,
-};
+    HW_LOCK_CTRL_SELF_TEST_PASSED,
+    HW_LOCK_CTRL_SELF_TEST_FAILED_POWER,
+    HW_LOCK_CTRL_SELF_TEST_FAILED_MOTOR,
+} HwLockCtrlSelfTestResultT;
 
 /**
- * @brief LockCtrlInit initializes the driver. Lock state is undefined.
+ * @brief HwLockCtrlInit initializes the driver. Lock state is undefined.
  * @return true - initialization completed successfully.
  *         false - some error.
  */
-bool LockCtrlInit();
+bool HwLockCtrlInit();
 
 /**
- * @brief  LockCtrlLock locks the lock.
+ * @brief  HwLockCtrlLock locks the lock.
  * @return true - lock operation completed successfully
  *         false - some error.
  */
-bool LockCtrlLock();
+bool HwLockCtrlLock();
 
 /**
- * @brief  LockCtrlUnlock unlocks the lock.
+ * @brief  HwLockCtrlUnlock unlocks the lock.
  * @return true - unlock operation completed successfully
  *         false - some error.
  */
-bool LockCtrlUnlock();
+bool HwLockCtrlUnlock();
 
 /**
- * @brief LockCtrlSelfTest executes a self test. When completed, the Lock is always LOCKED.
+ * @brief HwLockCtrlSelfTest executes a self test. When completed, the Lock is always LOCKED.
  * @arg outResult: [out] output the self test results
  * @return true - self test completed and results are available in 'outResult'
  *         false - self test failed to execute.
  */
-bool LockCtrlSelfTest(LockCtrlSelfTestResult* outResult);
+bool HwLockCtrlSelfTest(HwLockCtrlSelfTestResultT* outResult);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //ACTIVEOBJECTUNITTESTINGDEMO_LOCKCTRL_H
+#endif //ACTIVEOBJECTUNITTESTINGDEMO_HWLOCKCTRL_H

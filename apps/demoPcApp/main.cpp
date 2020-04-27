@@ -1,41 +1,40 @@
 #include <iostream>
-#include "lockCtrlService.hpp"
+#include "hwLockCtrlService.hpp"
 #include <thread>
 
 using namespace cms;
-static LockCtrlService::LockState s_lastState = LockCtrlService::LockState::UNKNOWN;
-static LockCtrlService s_lockCtrlService;
+static HwLockCtrlService::LockState s_lastState = HwLockCtrlService::LockState::UNKNOWN;
+static HwLockCtrlService s_lockCtrlService;
 
 std::string GetLockState()
 {
     switch (s_lastState)
     {
-    case LockCtrlService::LockState::UNLOCKED:
+    case HwLockCtrlService::LockState::UNLOCKED:
         return "Unlocked";
-    case LockCtrlService::LockState::LOCKED:
+    case HwLockCtrlService::LockState::LOCKED:
         return "Locked";
     default:
         return "Unknown";
     }
 }
 
-void LockStateChangeCallback(LockCtrlService::LockState state)
+void LockStateChangeCallback(HwLockCtrlService::LockState state)
 {
     //NOTE: this callback is being executed
-    //      in the thread context of the LockCtrlService.
+    //      in the thread context of the HwLockCtrlService.
     s_lastState = state;
     std::cout << "Lock state changed: " << GetLockState() << std::endl;
 }
 
-void SelfTestResultCallback(LockCtrlService::SelfTestResult result)
+void SelfTestResultCallback(HwLockCtrlService::SelfTestResult result)
 {
     //NOTE: this callback is being executed
-    //      in the thread context of the LockCtrlService.
+    //      in the thread context of the HwLockCtrlService.
 
-    const char* resultStr = (result == LockCtrlService::SelfTestResult::PASS) ? "Pass" : "Fail";
+    const char* resultStr = (result == HwLockCtrlService::SelfTestResult::PASS) ? "Pass" : "Fail";
     std::cout << "Self Test result: " << resultStr << std::endl;
 }
-
 
 enum class DesiredAction
 {

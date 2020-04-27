@@ -21,24 +21,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include "lockCtrlService.hpp"
+#include "hwLockCtrlService.hpp"
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
-#include "lockCtrl.h"
+#include "hwLockCtrl.h"
 
 using namespace cms;
 
-static constexpr const char * LOCK_CTRL_MOCK_NAME = "LockCtrl";
-static constexpr const char * INTERNAL_MOCK_NAME = "Test";
+static constexpr const char* HW_LOCK_CTRL_MOCK = "HwLockCtrl";
+static constexpr const char* INTERNAL_MOCK = "Test";
 
-static void TestLockStateCallback(LockCtrlService::LockState state)
+static void TestLockStateCallback(HwLockCtrlService::LockState state)
 {
-    mock(INTERNAL_MOCK_NAME).actualCall("LockStateCallback").withIntParameter("state", static_cast<int>(state));
+    mock(INTERNAL_MOCK).actualCall("LockStateCallback").withIntParameter("state", static_cast<int>(state));
 }
 
-static void TestSelfTestResultCallback(LockCtrlService::SelfTestResult result)
+static void TestSelfTestResultCallback(HwLockCtrlService::SelfTestResult result)
 {
-    mock(INTERNAL_MOCK_NAME).actualCall("SelfTestResultCallback").withIntParameter("result", static_cast<int>(result));
+    mock(INTERNAL_MOCK).actualCall("SelfTestResultCallback").withIntParameter("result", static_cast<int>(result));
 }
 
 /**
@@ -52,11 +52,11 @@ static void TestSelfTestResultCallback(LockCtrlService::SelfTestResult result)
  */
 TEST_GROUP(LockCtrlServiceTests)
 {
-    LockCtrlService* mUnderTest = nullptr;
+    HwLockCtrlService* mUnderTest = nullptr;
 
     void setup() final
     {
-        mUnderTest = new LockCtrlService();
+        mUnderTest = new HwLockCtrlService();
         mUnderTest->RegisterChangeStateCallback(TestLockStateCallback);
         mUnderTest->RegisterSelfTestResultCallback(TestSelfTestResultCallback);
     }
@@ -77,30 +77,30 @@ TEST_GROUP(LockCtrlServiceTests)
 
     void StartServiceToLocked()
     {
-        mock(LOCK_CTRL_MOCK_NAME).expectOneCall("Init");
-        mock(LOCK_CTRL_MOCK_NAME).expectOneCall("Lock");
-        mock(INTERNAL_MOCK_NAME).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(LockCtrlService::LockState::LOCKED));
+        mock(HW_LOCK_CTRL_MOCK).expectOneCall("Init");
+        mock(HW_LOCK_CTRL_MOCK).expectOneCall("Lock");
+        mock(INTERNAL_MOCK).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(HwLockCtrlService::LockState::LOCKED));
         mUnderTest->Start(ProcessOption::UNIT_TEST);
         GiveProcessingTime();
         mock().checkExpectations();
-        CHECK_TRUE(LockCtrlService::LockState::LOCKED == mUnderTest->GetState());
+        CHECK_TRUE(HwLockCtrlService::LockState::LOCKED == mUnderTest->GetState());
     }
 
     void TestUnlock()
     {
-        mock(LOCK_CTRL_MOCK_NAME).expectOneCall("Unlock");
-        mock(INTERNAL_MOCK_NAME).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(LockCtrlService::LockState::UNLOCKED));
+        mock(HW_LOCK_CTRL_MOCK).expectOneCall("Unlock");
+        mock(INTERNAL_MOCK).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(HwLockCtrlService::LockState::UNLOCKED));
         mUnderTest->RequestUnlockedAsync();
         GiveProcessingTime();
         mock().checkExpectations();
-        CHECK_TRUE(LockCtrlService::LockState::UNLOCKED == mUnderTest->GetState());
+        CHECK_TRUE(HwLockCtrlService::LockState::UNLOCKED == mUnderTest->GetState());
     }
 
     void StartServiceToUnlocked()
     {
-        mock(LOCK_CTRL_MOCK_NAME).expectOneCall("Init");
-        mock(LOCK_CTRL_MOCK_NAME).expectOneCall("Lock");
-        mock(INTERNAL_MOCK_NAME).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(LockCtrlService::LockState::LOCKED));
+        mock(HW_LOCK_CTRL_MOCK).expectOneCall("Init");
+        mock(HW_LOCK_CTRL_MOCK).expectOneCall("Lock");
+        mock(INTERNAL_MOCK).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(HwLockCtrlService::LockState::LOCKED));
         mUnderTest->Start(ProcessOption::UNIT_TEST);
         GiveProcessingTime();
         mock().checkExpectations();
@@ -144,11 +144,11 @@ TEST(LockCtrlServiceTests, when_locked_self_test_operates_and_returns_to_locked)
     StartServiceToLocked();
     mock().clear();
 
-    auto passed = LOCK_CTRL_SELF_TEST_PASSED;
-    mock(LOCK_CTRL_MOCK_NAME).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
-    mock(INTERNAL_MOCK_NAME).expectOneCall("SelfTestResultCallback").withIntParameter("result", static_cast<int>(LockCtrlService::SelfTestResult::PASS));
-    mock(LOCK_CTRL_MOCK_NAME).expectOneCall("Lock");
-    mock(INTERNAL_MOCK_NAME).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(LockCtrlService::LockState::LOCKED));
+    auto passed = HW_LOCK_CTRL_SELF_TEST_PASSED;
+    mock(HW_LOCK_CTRL_MOCK).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
+    mock(INTERNAL_MOCK).expectOneCall("SelfTestResultCallback").withIntParameter("result", static_cast<int>(HwLockCtrlService::SelfTestResult::PASS));
+    mock(HW_LOCK_CTRL_MOCK).expectOneCall("Lock");
+    mock(INTERNAL_MOCK).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(HwLockCtrlService::LockState::LOCKED));
     mUnderTest->RequestSelfTestAsync();
     GiveProcessingTime();
     mock().checkExpectations();
@@ -159,11 +159,11 @@ TEST(LockCtrlServiceTests, when_unlocked_self_test_operates_and_returns_to_unloc
     StartServiceToUnlocked();
     mock().clear();
 
-    auto passed = LOCK_CTRL_SELF_TEST_PASSED;
-    mock(LOCK_CTRL_MOCK_NAME).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
-    mock(INTERNAL_MOCK_NAME).expectOneCall("SelfTestResultCallback").withIntParameter("result", static_cast<int>(LockCtrlService::SelfTestResult::PASS));
-    mock(LOCK_CTRL_MOCK_NAME).expectOneCall("Unlock");
-    mock(INTERNAL_MOCK_NAME).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(LockCtrlService::LockState::UNLOCKED));
+    auto passed = HW_LOCK_CTRL_SELF_TEST_PASSED;
+    mock(HW_LOCK_CTRL_MOCK).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
+    mock(INTERNAL_MOCK).expectOneCall("SelfTestResultCallback").withIntParameter("result", static_cast<int>(HwLockCtrlService::SelfTestResult::PASS));
+    mock(HW_LOCK_CTRL_MOCK).expectOneCall("Unlock");
+    mock(INTERNAL_MOCK).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(HwLockCtrlService::LockState::UNLOCKED));
     mUnderTest->RequestSelfTestAsync();
     GiveProcessingTime();
     mock().checkExpectations();
@@ -174,11 +174,11 @@ TEST(LockCtrlServiceTests, when_locked_a_failed_self_test_operates_and_still_ret
     StartServiceToLocked();
     mock().clear();
 
-    auto passed = LOCK_CTRL_SELF_TEST_FAILED_POWER;
-    mock(LOCK_CTRL_MOCK_NAME).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
-    mock(INTERNAL_MOCK_NAME).expectOneCall("SelfTestResultCallback").withIntParameter("result", static_cast<int>(LockCtrlService::SelfTestResult::FAIL));
-    mock(LOCK_CTRL_MOCK_NAME).expectOneCall("Lock");
-    mock(INTERNAL_MOCK_NAME).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(LockCtrlService::LockState::LOCKED));
+    auto passed = HW_LOCK_CTRL_SELF_TEST_FAILED_POWER;
+    mock(HW_LOCK_CTRL_MOCK).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
+    mock(INTERNAL_MOCK).expectOneCall("SelfTestResultCallback").withIntParameter("result", static_cast<int>(HwLockCtrlService::SelfTestResult::FAIL));
+    mock(HW_LOCK_CTRL_MOCK).expectOneCall("Lock");
+    mock(INTERNAL_MOCK).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(HwLockCtrlService::LockState::LOCKED));
     mUnderTest->RequestSelfTestAsync();
     GiveProcessingTime();
     mock().checkExpectations();
@@ -189,11 +189,11 @@ TEST(LockCtrlServiceTests, when_unlocked_a_failed_self_test_operates_and_still_r
     StartServiceToUnlocked();
     mock().clear();
 
-    auto passed = LOCK_CTRL_SELF_TEST_FAILED_MOTOR;
-    mock(LOCK_CTRL_MOCK_NAME).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
-    mock(INTERNAL_MOCK_NAME).expectOneCall("SelfTestResultCallback").withIntParameter("result", static_cast<int>(LockCtrlService::SelfTestResult::FAIL));
-    mock(LOCK_CTRL_MOCK_NAME).expectOneCall("Unlock");
-    mock(INTERNAL_MOCK_NAME).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(LockCtrlService::LockState::UNLOCKED));
+    auto passed = HW_LOCK_CTRL_SELF_TEST_FAILED_MOTOR;
+    mock(HW_LOCK_CTRL_MOCK).expectOneCall("SelfTest").withOutputParameterReturning("outResult", &passed, sizeof(passed));
+    mock(INTERNAL_MOCK).expectOneCall("SelfTestResultCallback").withIntParameter("result", static_cast<int>(HwLockCtrlService::SelfTestResult::FAIL));
+    mock(HW_LOCK_CTRL_MOCK).expectOneCall("Unlock");
+    mock(INTERNAL_MOCK).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(HwLockCtrlService::LockState::UNLOCKED));
     mUnderTest->RequestSelfTestAsync();
     GiveProcessingTime();
     mock().checkExpectations();

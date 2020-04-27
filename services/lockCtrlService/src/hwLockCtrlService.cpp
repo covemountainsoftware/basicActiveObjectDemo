@@ -23,13 +23,13 @@ SOFTWARE.
 */
 
 #include "cmsFlatStateMachine.hpp"
-#include "lockCtrlService.hpp"
-#include "lockCtrl.h"
+#include "hwLockCtrlService.hpp"
+#include "hwLockCtrl.h"
 
 namespace cms
 {
 
-void LockCtrlService::RegisterChangeStateCallback(LockCtrlService::ChangeStateCallback callback)
+void HwLockCtrlService::RegisterChangeStateCallback(HwLockCtrlService::ChangeStateCallback callback)
 {
     //note, this is not thread safe, but
     //assuming this is a single one time call/setup
@@ -37,7 +37,7 @@ void LockCtrlService::RegisterChangeStateCallback(LockCtrlService::ChangeStateCa
     mChangedCallback = callback;
 }
 
-void LockCtrlService::RegisterSelfTestResultCallback(LockCtrlService::SelfTestResultCallback callback)
+void HwLockCtrlService::RegisterSelfTestResultCallback(HwLockCtrlService::SelfTestResultCallback callback)
 {
     //note, this is not thread safe, but
     //assuming this is a single one time call/setup
@@ -45,49 +45,49 @@ void LockCtrlService::RegisterSelfTestResultCallback(LockCtrlService::SelfTestRe
     mSelfTestResultCallback = callback;
 }
 
-void LockCtrlService::RequestLockedAsync()
+void HwLockCtrlService::RequestLockedAsync()
 {
     this->Post(Signals::REQUEST_LOCKED);
 }
 
-void LockCtrlService::RequestUnlockedAsync()
+void HwLockCtrlService::RequestUnlockedAsync()
 {
     this->Post(Signals::REQUEST_UNLOCKED);
 }
 
-void LockCtrlService::RequestSelfTestAsync()
+void HwLockCtrlService::RequestSelfTestAsync()
 {
     this->Post(Signals::REQUEST_SELF_TEST);
 }
 
-LockCtrlService::StateRtn LockCtrlService::InitialPseudoState(const ServiceEventType* const)
+HwLockCtrlService::StateRtn HwLockCtrlService::InitialPseudoState(const ServiceEventType* const)
 {
-    LockCtrlInit();
-    return TransitionTo(&LockCtrlService::Locked);
+    HwLockCtrlInit();
+    return TransitionTo(&HwLockCtrlService::Locked);
 }
 
-LockCtrlService::StateRtn LockCtrlService::Locked(const ServiceEventType* const event)
+HwLockCtrlService::StateRtn HwLockCtrlService::Locked(const ServiceEventType* const event)
 {
     StateRtn rtn;
     switch (event->signal)
     {
     case cms::SM_ENTER:
-        LockCtrlLock();
+        HwLockCtrlLock();
         NotifyChangedState(LockState::LOCKED);
         rtn = Handled();
         break;
     case cms::SM_EXIT:
         rtn = Handled();
-        mHistory = &LockCtrlService::Locked;
+        mHistory = &HwLockCtrlService::Locked;
         break;
     case REQUEST_LOCKED:
         rtn = Handled();
         break;
     case REQUEST_UNLOCKED:
-        rtn = TransitionTo(&LockCtrlService::Unlocked);
+        rtn = TransitionTo(&HwLockCtrlService::Unlocked);
         break;
     case REQUEST_SELF_TEST:
-        rtn = TransitionTo(&LockCtrlService::SelfTest);
+        rtn = TransitionTo(&HwLockCtrlService::SelfTest);
         break;
     default:
         rtn = Handled();
@@ -97,28 +97,28 @@ LockCtrlService::StateRtn LockCtrlService::Locked(const ServiceEventType* const 
     return rtn;
 }
 
-LockCtrlService::StateRtn LockCtrlService::Unlocked(const ServiceEventType* const event)
+HwLockCtrlService::StateRtn HwLockCtrlService::Unlocked(const ServiceEventType* const event)
 {
     StateRtn rtn;
     switch (event->signal)
     {
     case cms::SM_ENTER:
         rtn = Handled();
-        LockCtrlUnlock();
+        HwLockCtrlUnlock();
         NotifyChangedState(LockState::UNLOCKED);
         break;
     case cms::SM_EXIT:
         rtn = Handled();
-        mHistory = &LockCtrlService::Unlocked;
+        mHistory = &HwLockCtrlService::Unlocked;
         break;
     case REQUEST_LOCKED:
-        rtn = TransitionTo(&LockCtrlService::Locked);
+        rtn = TransitionTo(&HwLockCtrlService::Locked);
         break;
     case REQUEST_UNLOCKED:
         rtn = Handled();
         break;
     case REQUEST_SELF_TEST:
-        rtn = TransitionTo(&LockCtrlService::SelfTest);
+        rtn = TransitionTo(&HwLockCtrlService::SelfTest);
         break;
     default:
         rtn = Handled();
@@ -128,7 +128,7 @@ LockCtrlService::StateRtn LockCtrlService::Unlocked(const ServiceEventType* cons
     return rtn;
 }
 
-LockCtrlService::StateRtn LockCtrlService::SelfTest(const ServiceEventType* const event)
+HwLockCtrlService::StateRtn HwLockCtrlService::SelfTest(const ServiceEventType* const event)
 {
     StateRtn rtn;
     switch (event->signal)
@@ -138,14 +138,13 @@ LockCtrlService::StateRtn LockCtrlService::SelfTest(const ServiceEventType* cons
         rtn = Handled();
         break;
     case REQUEST_LOCKED:
-        rtn = TransitionTo(&LockCtrlService::Locked);
+        rtn = TransitionTo(&HwLockCtrlService::Locked);
         break;
     case REQUEST_UNLOCKED:
-        rtn = TransitionTo(&LockCtrlService::Unlocked);
+        rtn = TransitionTo(&HwLockCtrlService::Unlocked);
         break;
-    case REQUEST_SELF_TEST:
-        rtn = Handled();
-        break;
+
+    case REQUEST_SELF_TEST: //purposeful fallthrough
     default:
         rtn = Handled();
         break;
@@ -153,11 +152,11 @@ LockCtrlService::StateRtn LockCtrlService::SelfTest(const ServiceEventType* cons
 
     return rtn;
 }
-void LockCtrlService::PerformSelfTest()
+void HwLockCtrlService::PerformSelfTest()
 {
-    LockCtrlSelfTestResult result;
-    bool ok = LockCtrlSelfTest(&result);
-    if (ok && (result == LOCK_CTRL_SELF_TEST_PASSED))
+    HwLockCtrlSelfTestResult result;
+    bool ok = HwLockCtrlSelfTest(&result);
+    if (ok && (result == HW_LOCK_CTRL_SELF_TEST_PASSED))
     {
         NotifySelfTestResult(SelfTestResult::PASS);
     }
@@ -172,7 +171,7 @@ void LockCtrlService::PerformSelfTest()
     //
     // https://covemountainsoftware.com/2020/03/08/uml-statechart-handling-errors-when-entering-a-state/
     //
-    if (mHistory == &LockCtrlService::Unlocked)
+    if (mHistory == &HwLockCtrlService::Unlocked)
     {
         PostUrgent(REQUEST_UNLOCKED);
     }
@@ -182,7 +181,7 @@ void LockCtrlService::PerformSelfTest()
     }
 }
 
-void LockCtrlService::NotifyChangedState(LockCtrlService::LockState state)
+void HwLockCtrlService::NotifyChangedState(HwLockCtrlService::LockState state)
 {
     mState = state;
     if (mChangedCallback)
@@ -191,7 +190,7 @@ void LockCtrlService::NotifyChangedState(LockCtrlService::LockState state)
     }
 }
 
-void LockCtrlService::NotifySelfTestResult(LockCtrlService::SelfTestResult result)
+void HwLockCtrlService::NotifySelfTestResult(HwLockCtrlService::SelfTestResult result)
 {
     if (mSelfTestResultCallback)
     {

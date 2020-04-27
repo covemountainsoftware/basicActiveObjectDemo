@@ -1,1 +1,1 @@
-add_subdirectory(lockCtrl)
+add_subdirectory(hwLockCtrl)
