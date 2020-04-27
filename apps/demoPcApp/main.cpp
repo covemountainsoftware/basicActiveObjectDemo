@@ -21,9 +21,21 @@ std::string GetLockState()
 
 void LockStateChangeCallback(LockCtrlService::LockState state)
 {
+    //NOTE: this callback is being executed
+    //      in the thread context of the LockCtrlService.
     s_lastState = state;
     std::cout << "Lock state changed: " << GetLockState() << std::endl;
 }
+
+void SelfTestResultCallback(LockCtrlService::SelfTestResult result)
+{
+    //NOTE: this callback is being executed
+    //      in the thread context of the LockCtrlService.
+
+    const char* resultStr = (result == LockCtrlService::SelfTestResult::PASS) ? "Pass" : "Fail";
+    std::cout << "Self Test result: " << resultStr << std::endl;
+}
+
 
 enum class DesiredAction
 {
@@ -35,23 +47,24 @@ enum class DesiredAction
 
 DesiredAction GetUserAction()
 {
-    int action;
+    std::string action;
 
     std::cout << "Lock state is: " << GetLockState() << std::endl;
     std::cout << "0: Unlock the lock" << std::endl;
     std::cout << "1: Lock the lock" << std::endl;
     std::cout << "2: Self Test the lock" << std::endl;
-    std::cout << "3: Exit" << std::endl;
+    std::cout << "3: Exit" << std::endl
+              << std::endl;
 
     std::cin >> action;
 
-    switch (action)
+    switch (action.front())
     {
-    case 0:
+    case '0':
         return DesiredAction::UNLOCK;
-    case 1:
+    case '1':
         return DesiredAction::LOCK;
-    case 2:
+    case '2':
         return DesiredAction::SELF_TEST;
     default:
         return DesiredAction::EXIT;
@@ -61,12 +74,12 @@ DesiredAction GetUserAction()
 int main()
 {
     s_lockCtrlService.RegisterChangeStateCallback(LockStateChangeCallback);
+    s_lockCtrlService.RegisterSelfTestResultCallback(SelfTestResultCallback);
     s_lockCtrlService.Start();
 
-    DesiredAction desiredAction;
-    while (DesiredAction::EXIT != (desiredAction = GetUserAction()))
+    while (true)
     {
-        switch (desiredAction)
+        switch (GetUserAction())
         {
         case DesiredAction::LOCK:
             s_lockCtrlService.RequestLockedAsync();
@@ -78,7 +91,7 @@ int main()
             s_lockCtrlService.RequestSelfTestAsync();
             break;
         default:
-            break;
+            return 0;
         }
     }
 
