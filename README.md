@@ -1,6 +1,10 @@
 # Active Object and State Machine Unit Testing Demo
 C and C++ project demonstrating active object and state machine unit testing, using CppUTest.
 
+This project was created to provide an example code base supporting the following post:
+
+https://covemountainsoftware.com/2020/04/17/unit-testing-active-objects-and-state-machines/
+
 ## Platform
 This project and associated code were developed and tested in Ubuntu 16.04 using CLion 2020.1.
 
