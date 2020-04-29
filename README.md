@@ -7,6 +7,7 @@ https://covemountainsoftware.com/2020/04/17/unit-testing-active-objects-and-stat
 
 ## Platform
 This project and associated code were developed and tested in Ubuntu 16.04 using CLion 2020.1.
+Recently confirmed in OSX 10.14.6, again using CLion 2020.1.
 
 The project requires an installation of CppUTest version 3.8. 
 
