@@ -22,9 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "TestStdActiveObject.hpp"
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
-#include "TestStdActiveObject.hpp"
 
 static const TestEvent TestEventT1(SIG_T1);
 static const TestEvent TestEventT2(SIG_T2);
