@@ -120,7 +120,7 @@ protected:
     }
 
 private:
-    std::atomic_bool mExit = false;
+    std::atomic_bool mExit{ false };
 };
 
 } //namespace
