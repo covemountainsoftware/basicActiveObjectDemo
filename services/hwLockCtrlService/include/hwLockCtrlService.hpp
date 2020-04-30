@@ -41,7 +41,7 @@ namespace cms
  *        so tests and usage of this service may apply to nearly any module
  *        with an internal event driven state machine.
  */
-class HwLockCtrlService : public ServicesActiveObject
+class HwLockCtrlService final : public ServicesActiveObject
 {
 public:
     enum class LockState
@@ -61,15 +61,15 @@ public:
     using SelfTestResultCallback = std::function<void(SelfTestResult)>;
 
     HwLockCtrlService() = default;
-    virtual ~HwLockCtrlService() = default;
+    ~HwLockCtrlService() override;
     HwLockCtrlService(const HwLockCtrlService&) = delete;
     HwLockCtrlService& operator=(const HwLockCtrlService&) = delete;
     HwLockCtrlService(HwLockCtrlService&&) = delete;
     HwLockCtrlService& operator=(HwLockCtrlService&&) = delete;
 
     LockState GetState() const { return mState; }
-    void RegisterChangeStateCallback(ChangeStateCallback callback);
-    void RegisterSelfTestResultCallback(SelfTestResultCallback callback);
+    void RegisterChangeStateCallback(const ChangeStateCallback& callback);
+    void RegisterSelfTestResultCallback(const SelfTestResultCallback& callback);
 
     void RequestLockedAsync();
     void RequestUnlockedAsync();

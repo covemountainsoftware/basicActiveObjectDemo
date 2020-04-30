@@ -29,7 +29,12 @@ SOFTWARE.
 namespace cms
 {
 
-void HwLockCtrlService::RegisterChangeStateCallback(HwLockCtrlService::ChangeStateCallback callback)
+HwLockCtrlService::~HwLockCtrlService()
+{
+    HwLockCtrlService::Stop();
+}
+
+void HwLockCtrlService::RegisterChangeStateCallback(const HwLockCtrlService::ChangeStateCallback& callback)
 {
     //note, this is not thread safe, but
     //assuming this is a single one time call/setup
@@ -37,7 +42,7 @@ void HwLockCtrlService::RegisterChangeStateCallback(HwLockCtrlService::ChangeSta
     mChangedCallback = callback;
 }
 
-void HwLockCtrlService::RegisterSelfTestResultCallback(HwLockCtrlService::SelfTestResultCallback callback)
+void HwLockCtrlService::RegisterSelfTestResultCallback(const HwLockCtrlService::SelfTestResultCallback& callback)
 {
     //note, this is not thread safe, but
     //assuming this is a single one time call/setup
@@ -60,8 +65,10 @@ void HwLockCtrlService::RequestSelfTestAsync()
     this->Post(Signals::REQUEST_SELF_TEST);
 }
 
-HwLockCtrlService::StateRtn HwLockCtrlService::InitialPseudoState(const ServiceEventType* const)
+HwLockCtrlService::StateRtn HwLockCtrlService::InitialPseudoState(const ServiceEventType* const event)
 {
+    (void)event;
+
     HwLockCtrlInit();
     return TransitionTo(&HwLockCtrlService::Locked);
 }

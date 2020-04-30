@@ -26,6 +26,7 @@ SOFTWARE.
 #define CMSSTDACTIVEOBJECT_HPP
 
 #include "cmsActiveObject.hpp"
+#include <cassert>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -46,13 +47,21 @@ class StdActiveObject : public ActiveObject<EventT, QueueDepth>
 public:
     using LockGuard = std::unique_lock<std::mutex>;
 
-    bool Start(ProcessOption option = ProcessOption::WAIT) override
+    ~StdActiveObject()
     {
-        if (option == ProcessOption::WAIT)
+        //user's of this class must ensure that Stop()
+        //has been called before this level of destructor
+        //has been hit.
+        assert(mThread == nullptr);
+    }
+
+    bool Start(ProcessOption option = ProcessOption::NORMAL) override
+    {
+        if (option == ProcessOption::NORMAL)
         {
             if (mThread == nullptr)
             {
-                mThread = new std::thread([=]() { this->Task(); });
+                mThread = std::make_unique<std::thread>([=]() { this->Task(); });
             }
         }
         else
@@ -111,12 +120,23 @@ public:
         return false;
     }
 
+    void Stop() override
+    {
+        if (mThread)
+        {
+            this->ExitTask();
+            PostUrgent(EventT(SM_PROBE));
+            mThread->join();
+            mThread.reset(nullptr);
+        }
+    }
+
     bool ProcessOneEvent(ProcessOption option) override
     {
         LockGuard lockQueue(mMutex);
 
         EventT event;
-        if (option == ProcessOption::WAIT)
+        if (option == ProcessOption::NORMAL)
         {
             while (mQueue.empty())
             {
@@ -140,7 +160,7 @@ public:
     }
 
 private:
-    std::thread* mThread = nullptr;
+    std::unique_ptr<std::thread> mThread = nullptr;
     std::condition_variable mCondVar;
     std::mutex mMutex;
     std::deque<EventT> mQueue;

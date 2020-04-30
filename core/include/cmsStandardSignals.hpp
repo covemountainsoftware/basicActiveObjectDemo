@@ -30,6 +30,7 @@ namespace cms
 
 enum StandardSignals
 {
+    SM_PROBE,
     SM_ENTER,
     SM_EXIT,
     SM_BEGIN_USER_SIGNALS

@@ -5,8 +5,16 @@
 #include "TestStdActiveObject.hpp"
 #include "CppUTestExt/MockSupport.h"
 
-TestStdActiveObject::StateRtn TestStdActiveObject::InitialPseudoState(const TestEvent* const )
+
+TestStdActiveObject::~TestStdActiveObject()
 {
+    TestStdActiveObject::Stop();
+}
+
+TestStdActiveObject::StateRtn TestStdActiveObject::InitialPseudoState(const TestEvent* const event)
+{
+    (void)event;
+
     mock("TestStdActiveObject").actualCall("InitialPseudoState").onObject(this);
     return TransitionTo(&TestStdActiveObject::TestStateA);
 }

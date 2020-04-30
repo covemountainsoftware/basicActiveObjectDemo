@@ -10,23 +10,26 @@
 
 using TestEvent = cms::BaseEvent<uint32_t>;
 
-
 enum TestSignals
 {
     SIG_T1 = cms::StandardSignals::SM_BEGIN_USER_SIGNALS,
     SIG_T2,
 };
 
-class TestStdActiveObject : public cms::StdActiveObject<TestEvent, 4>
+class TestStdActiveObject final : public cms::StdActiveObject<TestEvent, 4>
 {
 public:
-    virtual ~TestStdActiveObject() = default;
+    TestStdActiveObject() = default;
+    ~TestStdActiveObject() override;
+    TestStdActiveObject(const TestStdActiveObject&) = delete;
+    TestStdActiveObject& operator=(const TestStdActiveObject&) = delete;
+    TestStdActiveObject(TestStdActiveObject&&) = delete;
+    TestStdActiveObject& operator=(TestStdActiveObject&&) = delete;
 
 private:
     StateRtn InitialPseudoState(const TestEvent* const event) override;
     StateRtn TestStateA(const TestEvent* const event);
     StateRtn TestStateB(const TestEvent* const event);
 };
-
 
 #endif //ACTIVEOBJECTUNITTESTINGDEMO_TESTSTDACTIVEOBJECT_HPP

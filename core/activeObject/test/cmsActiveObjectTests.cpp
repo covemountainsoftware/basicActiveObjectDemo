@@ -91,8 +91,12 @@ TEST_GROUP(TestStdActiveObjectTests)
 
 TEST(TestStdActiveObjectTests, create_does_not_crash)
 {
-    mock("TestStdActiveObject").ignoreOtherCalls();
-    Start();
+}
+
+TEST(TestStdActiveObjectTests, create_with_real_thread_start_does_not_crash)
+{
+    mock().ignoreOtherCalls();
+    mUnderTest->Start();
 }
 
 TEST(TestStdActiveObjectTests, init_behaves_as_expected)

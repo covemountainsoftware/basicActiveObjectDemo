@@ -204,3 +204,9 @@ TEST(HwLockCtrlServiceTests, given_unlocked_when_selftest_request_which_fails_th
     GiveProcessingTime();
     mock().checkExpectations();
 }
+
+TEST(HwLockCtrlServiceTests, rapid_create_start_destroy_handles_real_thread_correctly)
+{
+    mock().ignoreOtherCalls();
+    mUnderTest->Start(); //use default options creating a real thread
+}

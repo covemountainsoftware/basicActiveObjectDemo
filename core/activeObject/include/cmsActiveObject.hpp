@@ -26,6 +26,7 @@ SOFTWARE.
 #define CMSACTIVEOBJECT_HPP
 
 #include <cstdint>
+#include <atomic>
 #include "cmsFlatStateMachine.hpp"
 
 namespace cms
@@ -44,7 +45,7 @@ enum class ThreadPriority
 
 enum class ProcessOption
 {
-    WAIT,
+    NORMAL,
     UNIT_TEST
 };
 
@@ -52,25 +53,74 @@ template<typename EventT, uint32_t QueueDepth>
 class ActiveObject : public cms::FlatStateMachine<EventT>
 {
 public:
-    virtual bool Start(ProcessOption option = ProcessOption::WAIT) = 0;
+    ActiveObject() = default;
+    virtual ~ActiveObject() = default;
+    ActiveObject(const ActiveObject&) = delete;
+    ActiveObject& operator=(const ActiveObject&) = delete;
+    ActiveObject(ActiveObject&&) = delete;
+    ActiveObject& operator=(ActiveObject&&) = delete;
+
+    /**
+     * @brief Start the active object
+     * @param option NORMAL: create a thread, initialize the statemachine from the thread context, and start processing events
+     *               UNIT_TEST: does not create a thread, initializes the statemachine immediately. Processing events must
+     *                          be manually initiated from the unit tests.
+     * @return true - success.
+     */
+    virtual bool Start(ProcessOption option = ProcessOption::NORMAL) = 0;
+
+    /**
+     * @brief Post an event, FIFO, to the active object's event queue
+     * @param event - the event to post
+     * @return true - the event was successfully posted.
+     */
     virtual bool Post(const EventT& event) = 0;
+
+    /**
+     * @brief Post an event, LIFO, to the active object's event queue
+     * @param event - the event to post
+     * @return true - the event was successfully posted.
+     */
     virtual bool PostUrgent(const EventT& event) = 0;
+
+    /**
+     * @brief Set the priority of the active object
+     * @param priority
+     * @return
+     */
     virtual bool SetPriority(ThreadPriority priority) = 0;
+
+    /**
+    * @brief Stop() - stop the active object and any associated thread context.
+    *                 MUST be called from the most derived class before
+    *                 the object is destroyed.
+    *
+    * @note - most embedded systems never destroy an active object
+    */
+    virtual void Stop() = 0;
 
     /**
      * @brief intended for unit test access only.
      */
-    virtual bool ProcessOneEvent(ProcessOption option = ProcessOption::WAIT) = 0;
+    virtual bool ProcessOneEvent(ProcessOption option = ProcessOption::NORMAL) = 0;
 
 protected:
-    [[noreturn]] void Task()
+    void ExitTask()
+    {
+        mExit = true;
+    }
+
+    void Task()
     {
         cms::FlatStateMachine<EventT>::Initialize();
-        while (1)
+        while (!mExit)
         {
-            ProcessOneEvent(ProcessOption::WAIT);
+            ProcessOneEvent(ProcessOption::NORMAL);
         }
     }
+
+private:
+    std::atomic_bool mExit = false;
 };
 
 } //namespace
