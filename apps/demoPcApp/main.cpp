@@ -70,10 +70,10 @@ DesiredAction GetUserAction()
 
 int main()
 {
-    HLCS_Init(EXECUTION_OPTION_NORMAL);
+    HLCS_Init();
     HLCS_RegisterChangeStateCallback(LockStateChangeCallback);
     HLCS_RegisterSelfTestResultCallback(SelfTestResultCallback);
-    HLCS_Start();
+    HLCS_Start(EXECUTION_OPTION_NORMAL);
 
     while (true)
     {

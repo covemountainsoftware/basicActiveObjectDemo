@@ -27,6 +27,7 @@ SOFTWARE.
 #include "hwLockCtrlService.h"
 #include "hwLockCtrl.h"
 #include "fauxQueue.h"
+#include "fauxThread.h"
 
 typedef enum Signal
 {
@@ -34,7 +35,8 @@ typedef enum Signal
     SM_EXIT,
     SIG_REQUEST_LOCKED,
     SIG_REQUEST_UNLOCKED,
-    SIG_REQUEST_SELF_TEST
+    SIG_REQUEST_SELF_TEST,
+    SIG_REQUEST_THREAD_EXIT
 } SignalT;
 
 typedef struct HLCS_EventType
@@ -48,12 +50,14 @@ typedef void* (*HLCS_StateMachineFunc)(const HLCS_EventTypeT * const event);
 static void HLCS_PerformSelfTest();
 static void HLCS_NotifyChangedState(HLCS_LockStateT state);
 static void PushEvent(SignalT sig);
+static void PushUrgentEvent(SignalT sig);
 static void HLCS_SmProcess(const HLCS_EventTypeT * event);
 static void  HLCS_SmInitialize();
 static void* HLCS_SmInitialPseudoState(const HLCS_EventTypeT* const event);
 static void* HLCS_SmLocked(const HLCS_EventTypeT* const event);
 static void* HLCS_SmUnlocked(const HLCS_EventTypeT* const event);
 static void* HLCS_SmSelfTest(const HLCS_EventTypeT* const event);
+static void HLCS_Task(void);
 
 //constants
 static const size_t QueueDepth = 10;
@@ -62,6 +66,8 @@ static const HLCS_EventTypeT EnterEvent = { .signal = SM_ENTER};
 
 //module static variables
 static _Atomic HLCS_LockStateT s_lockState = HLCS_LOCK_STATE_UNKNOWN;
+static atomic_bool s_exitThread = false;
+static TaskHandle_t s_thread = NULL;
 static QueueHandle_t s_eventQueue = NULL;
 static HLCS_ChangeStateCallback s_stateChangedCallback = NULL;
 static HLCS_SelfTestResultCallback s_selfTestResultCallback = NULL;
@@ -76,38 +82,47 @@ void HLCS_Init()
 {
     //ensure Init is being called appropriately
     assert(s_lockState == HLCS_LOCK_STATE_UNKNOWN);
+    assert(s_thread == NULL);
     assert(s_eventQueue == NULL);
     assert(s_stateChangedCallback == NULL);
     assert(s_selfTestResultCallback == NULL);
     assert(s_currentState == NULL);
     assert(s_stateHistory == NULL);
+    assert(s_exitThread == false);
 
     s_eventQueue = xQueueCreate(QueueDepth, sizeof(HLCS_EventTypeT));
+
+    //thread is created in Start()
 }
 
 void HLCS_Destroy()
 {
-    //TODO, the thread.
-    vQueueDelete(s_eventQueue);
+    if (s_eventQueue != NULL)
+    {
+        s_exitThread = true;
+        PushUrgentEvent(SIG_REQUEST_THREAD_EXIT);
+        vTaskDelete(s_thread);
+        vQueueDelete(s_eventQueue);
+    }
     s_lockState = HLCS_LOCK_STATE_UNKNOWN;
     s_eventQueue = NULL;
     s_stateChangedCallback = NULL;
     s_selfTestResultCallback = NULL;
     s_currentState = NULL;
     s_stateHistory = NULL;
+    s_exitThread = false;
+    s_thread = NULL;
 }
 
 void HLCS_Start(ExecutionOptionT option)
 {
     assert(s_currentState == NULL);
+    assert(s_thread == NULL);
+
     if (EXECUTION_OPTION_NORMAL == option)
     {
-        /* TODO
-        if (mThread == nullptr)
-        {
-            mThread = std::make_unique<std::thread>([=]() { this->Task(); });
-        }
-         */
+        bool ok = xTaskCreate(HLCS_Task, "HLCS", 2000, &s_thread);
+        assert(ok == true);
     }
     else
     {
@@ -160,6 +175,12 @@ bool HLCS_ProcessOneEvent(ExecutionOptionT option)
         return false;
     }
 
+    if (event.signal == SIG_REQUEST_THREAD_EXIT)
+    {
+        s_exitThread = true;
+        return false;
+    }
+
     HLCS_SmProcess(&event);
     return true;
 }
@@ -176,7 +197,8 @@ static void PushEvent(SignalT sig)
         fprintf(stderr, "HLCS queue send failed for sig %d!\n", sig);
     }
 }
-static void PushUrgentEvent(SignalT sig)
+
+void PushUrgentEvent(SignalT sig)
 {
     HLCS_EventTypeT event =
       {
@@ -347,5 +369,14 @@ void HLCS_PerformSelfTest()
     else
     {
         PushUrgentEvent(SIG_REQUEST_LOCKED);
+    }
+}
+
+void HLCS_Task(void)
+{
+    HLCS_SmInitialize();
+    while (!s_exitThread)
+    {
+        HLCS_ProcessOneEvent(EXECUTION_OPTION_NORMAL);
     }
 }
