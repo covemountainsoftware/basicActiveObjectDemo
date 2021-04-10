@@ -4,6 +4,8 @@
 #include <mutex>
 #include <vector>
 #include <deque>
+#include <condition_variable>
+#include <cstring>
 #include "fauxQueue.h"
 
 namespace cms
