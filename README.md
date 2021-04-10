@@ -1,34 +1,28 @@
-# Active Object and State Machine Unit Testing Demo
-C and C++ project demonstrating active object and state machine unit testing, using CppUTest.
+# Basic Active Object Demo
+C (and behind the scenes C++) project demonstrating a basic C module using the active object pattern.
 
 This project was created to provide an example code base supporting the following post:
 
+TODO:
+
+The following post provided the origin for this repository.
 https://covemountainsoftware.com/2020/04/17/unit-testing-active-objects-and-state-machines/
 
 ## Platform
 This project and associated code were developed and tested in Ubuntu 16.04 using CLion 2020.1.
-Recently confirmed in OSX 10.14.6, again using CLion 2020.1.
+Recently confirmed in OSX 10.15.7 , again using CLion 2020.1.
 
-The project requires an installation of CppUTest version 3.8. 
+The project requires an installation of CppUTest version 3.8.
 
 ## Build Targets
 ### HwLockCtrlServiceTests
-The primary focus should be the "HwLockCtrlServiceTests" build target and associated code. See the
-folder "services/hwLockCtrlService" and associated code and tests.
-
-### cmsActiveObjectTests
-Secondary focus may be given to this target and associated code. 
-These classes create the foundation needed for the primary code/focus.
- 
-### cmsFlatStateMachineTests
-Secondary focus may be given to this target and associated code. 
-This trivial flat state machine class create the foundation for this project's 
-demonstration active object class.
+Project demonstrating my approach to unit test an event driven active object.
 
 ### demoPcApp
 This target is a trivial terminal demo app showing the target service in action "for real."
 
 ## References and Inspiration
+* [0] The blog post for this code: 
 * [1] Sutter, Herb. Prefer Using Active Objects Instead of Naked Threads. Dr. Dobbs, June 2010. https://www.drdobbs.com/parallel/prefer-using-active-objects-instead-of-n/225700095
 * [2] Grenning, James. Test Driven Development for Embedded C. https://amzn.to/2YbANIG 
 * [3] Samek, Miro. Practical UML Statecharts in C/C++: Event-Driven Programming for Embedded Systems. https://amzn.to/3eXdhoz

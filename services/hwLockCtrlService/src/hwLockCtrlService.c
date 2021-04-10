@@ -22,24 +22,59 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef ACTIVEOBJECTUNITTESTINGDEMO_TESTFLATSTATEMACHINE_HPP
-#define ACTIVEOBJECTUNITTESTINGDEMO_TESTFLATSTATEMACHINE_HPP
+#include "hwLockCtrlService.h"
+#include "hwLockCtrl.h"
+#include <stdatomic.h>
 
-#include "cmsFlatStateMachine.hpp"
-#include "testEvent.hpp"
+static _Atomic HLCS_LockStateT s_lockState = HLCS_LOCK_STATE_UNKNOWN;
 
-class TestFlatStateMachine : public cms::FlatStateMachine<TestEvent>
+void HLCS_Init(ExecutionOptionT option)
 {
-public:
-    TestFlatStateMachine() = default;
-    virtual ~TestFlatStateMachine() = default;
+    (void)option;
+}
 
-private:
-    StateRtn InitialPseudoState(const TestEvent* const event) override;
+void HLCS_Destroy()
+{
 
-    StateRtn TestStateA(const TestEvent* const event);
-    StateRtn TestStateB(const TestEvent* const event);
-    StateRtn TestStateC(const TestEvent* const event);
-};
+}
 
-#endif //ACTIVEOBJECTUNITTESTINGDEMO_TESTFLATSTATEMACHINE_HPP
+void HLCS_Start()
+{
+
+}
+
+HLCS_LockStateT HLCS_GetState()
+{
+    return atomic_load(&s_lockState);
+}
+
+void HLCS_RegisterChangeStateCallback(HLCS_ChangeStateCallback callback)
+{
+    (void)callback;
+}
+
+void HLCS_RegisterSelfTestResultCallback(HLCS_SelfTestResultCallback callback)
+{
+    (void)callback;
+}
+
+void HLCS_RequestLockedAsync()
+{
+
+}
+
+void HLCS_RequestUnlockedAsync()
+{
+
+}
+
+void HLCS_RequestSelfTestAsync()
+{
+
+}
+
+bool HLCS_ProcessOneEvent(ExecutionOptionT option)
+{
+    (void)option;
+    return false;
+}

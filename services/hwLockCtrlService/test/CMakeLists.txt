@@ -7,7 +7,7 @@ set(TEST_APP_NAME HwLockCtrlServiceTests)
 #      of the actual LockCtrl driver.
 set(TEST_SOURCES hwLockCtrlServiceTests.cpp
         ../../../test/common/cpputestMain.cpp
-        ../src/hwLockCtrlService.cpp
+        ../src/hwLockCtrlService.c
         ../../../test/mocks/hwLockCtrl/mockHwLockCtrl.cpp)
 
 include(../../../test/common/cpputestCMake.txt)

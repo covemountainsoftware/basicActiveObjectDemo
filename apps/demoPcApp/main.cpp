@@ -1,25 +1,23 @@
 #include <iostream>
-#include "hwLockCtrlService.hpp"
-#include <thread>
+#include "hwLockCtrlService.h"
+#include <string>
 
-using namespace cms;
-static HwLockCtrlService::LockState s_lastState = HwLockCtrlService::LockState::UNKNOWN;
-static HwLockCtrlService s_lockCtrlService;
+static HLCS_LockStateT s_lastState = HLCS_LOCK_STATE_UNKNOWN;
 
 std::string GetLockState()
 {
     switch (s_lastState)
     {
-    case HwLockCtrlService::LockState::UNLOCKED:
+    case HLCS_LOCK_STATE_UNLOCKED:
         return "Unlocked";
-    case HwLockCtrlService::LockState::LOCKED:
+    case HLCS_LOCK_STATE_LOCKED:
         return "Locked";
     default:
         return "Unknown";
     }
 }
 
-void LockStateChangeCallback(HwLockCtrlService::LockState state)
+void LockStateChangeCallback(HLCS_LockStateT state)
 {
     //NOTE: this callback is being executed
     //      in the thread context of the HwLockCtrlService.
@@ -27,12 +25,12 @@ void LockStateChangeCallback(HwLockCtrlService::LockState state)
     std::cout << "Lock state changed: " << GetLockState() << std::endl;
 }
 
-void SelfTestResultCallback(HwLockCtrlService::SelfTestResult result)
+void SelfTestResultCallback(HLCS_SelfTestResultT result)
 {
     //NOTE: this callback is being executed
     //      in the thread context of the HwLockCtrlService.
 
-    const char* resultStr = (result == HwLockCtrlService::SelfTestResult::PASS) ? "Pass" : "Fail";
+    const char* resultStr = (result == HLCS_SELF_TEST_RESULT_PASS) ? "Pass" : "Fail";
     std::cout << "Self Test result: " << resultStr << std::endl;
 }
 
@@ -72,24 +70,26 @@ DesiredAction GetUserAction()
 
 int main()
 {
-    s_lockCtrlService.RegisterChangeStateCallback(LockStateChangeCallback);
-    s_lockCtrlService.RegisterSelfTestResultCallback(SelfTestResultCallback);
-    s_lockCtrlService.Start();
+    HLCS_Init(EXECUTION_OPTION_NORMAL);
+    HLCS_RegisterChangeStateCallback(LockStateChangeCallback);
+    HLCS_RegisterSelfTestResultCallback(SelfTestResultCallback);
+    HLCS_Start();
 
     while (true)
     {
         switch (GetUserAction())
         {
         case DesiredAction::LOCK:
-            s_lockCtrlService.RequestLockedAsync();
+            HLCS_RequestLockedAsync();
             break;
         case DesiredAction::UNLOCK:
-            s_lockCtrlService.RequestUnlockedAsync();
+            HLCS_RequestUnlockedAsync();
             break;
         case DesiredAction::SELF_TEST:
-            s_lockCtrlService.RequestSelfTestAsync();
+            HLCS_RequestSelfTestAsync();
             break;
         default:
+            HLCS_Destroy();
             return 0;
         }
     }
