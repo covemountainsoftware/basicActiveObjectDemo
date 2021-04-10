@@ -56,7 +56,7 @@ TEST_GROUP(HwLockCtrlServiceTests)
 {
     void setup() final
     {
-        HLCS_Init(EXECUTION_OPTION_UNIT_TEST);
+        HLCS_Init();
         HLCS_RegisterChangeStateCallback(TestLockStateCallback);
         HLCS_RegisterSelfTestResultCallback(TestSelfTestResultCallback);
     }
@@ -80,7 +80,7 @@ TEST_GROUP(HwLockCtrlServiceTests)
         mock(HW_LOCK_CTRL_MOCK).expectOneCall("Init");
         mock(HW_LOCK_CTRL_MOCK).expectOneCall("Lock");
         mock(CB_MOCK).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(HLCS_LOCK_STATE_LOCKED));
-        HLCS_Start();
+        HLCS_Start(EXECUTION_OPTION_UNIT_TEST);
         GiveProcessingTime();
         mock().checkExpectations();
         CHECK_TRUE(HLCS_LOCK_STATE_LOCKED == HLCS_GetState());
@@ -101,7 +101,7 @@ TEST_GROUP(HwLockCtrlServiceTests)
         mock(HW_LOCK_CTRL_MOCK).expectOneCall("Init");
         mock(HW_LOCK_CTRL_MOCK).expectOneCall("Lock");
         mock(CB_MOCK).expectOneCall("LockStateCallback").withIntParameter("state", static_cast<int>(HLCS_LOCK_STATE_LOCKED));
-        HLCS_Start();
+        HLCS_Start(EXECUTION_OPTION_UNIT_TEST);
         GiveProcessingTime();
         mock().checkExpectations();
         TestUnlock();
@@ -206,10 +206,9 @@ TEST(HwLockCtrlServiceTests, rapid_create_start_destroy_handles_real_thread_corr
     //just make sure we don't see a crash or other hang or
     //unexpected behavior.
     mock().ignoreOtherCalls();
-    HLCS_Init(EXECUTION_OPTION_NORMAL);
-    HLCS_Start();
+    HLCS_Start(EXECUTION_OPTION_NORMAL);
     HLCS_Destroy();
-    HLCS_Init(EXECUTION_OPTION_NORMAL);
-    HLCS_Start();
+    HLCS_Init();
+    HLCS_Start(EXECUTION_OPTION_NORMAL);
     HLCS_Destroy();
 }

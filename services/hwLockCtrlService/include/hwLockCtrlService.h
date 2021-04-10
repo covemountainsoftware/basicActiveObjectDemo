@@ -60,7 +60,7 @@ typedef enum HLCS_SelfTestResult
  *  @brief HLCS_Init() will initialize the module and associated RTOS
  *         components. The module will be idle and not actually started.
  */
-void HLCS_Init(ExecutionOptionT option);
+void HLCS_Init();
 
 /**
  * @brief HLCS_Destroy() will stop (kill) the module and its internal thread
@@ -74,12 +74,12 @@ void HLCS_Destroy();
 /**
  * @brief HLCS_Start() will start behavior. Init() must have been called.
  */
-void HLCS_Start();
+void HLCS_Start(ExecutionOptionT option);
 
 /**
  * @brief HLCS_GetState() provides a thread safe synchronous API to
  *            determine the current state of this module.
- * @return
+ * @return the current lock state
  */
 HLCS_LockStateT HLCS_GetState();
 

@@ -13,4 +13,4 @@ set(TEST_SOURCES hwLockCtrlServiceTests.cpp
 include(../../../test/common/cpputestCMake.txt)
 include_directories(../../../drivers/hwLockCtrl/include)
 
-target_link_libraries(${TEST_APP_NAME} Threads::Threads)
+target_link_libraries(${TEST_APP_NAME} Threads::Threads fauxRTOS)
