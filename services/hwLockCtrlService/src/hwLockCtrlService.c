@@ -46,11 +46,11 @@ typedef struct HLCS_EventType
 
 //internal prototypes
 typedef void* StateRtn;
-typedef void* (*HLCS_StateMachineFunc)(const HLCS_EventTypeT * const event);
+typedef StateRtn (*HLCS_StateMachineFunc)(const HLCS_EventTypeT * const event);
 static void HLCS_PerformSelfTest();
 static void HLCS_NotifyChangedState(HLCS_LockStateT state);
-static void PushEvent(SignalT sig);
-static void PushUrgentEvent(SignalT sig);
+static void HLCS_PushEvent(SignalT sig);
+static void HLCS_PushUrgentEvent(SignalT sig);
 static void HLCS_SmProcess(const HLCS_EventTypeT * event);
 static void  HLCS_SmInitialize();
 static void* HLCS_SmInitialPseudoState(const HLCS_EventTypeT* const event);
@@ -100,7 +100,7 @@ void HLCS_Destroy()
     if (s_eventQueue != NULL)
     {
         s_exitThread = true;
-        PushUrgentEvent(SIG_REQUEST_THREAD_EXIT);
+        HLCS_PushUrgentEvent(SIG_REQUEST_THREAD_EXIT);
         vTaskDelete(s_thread);
         vQueueDelete(s_eventQueue);
     }
@@ -147,17 +147,17 @@ void HLCS_RegisterSelfTestResultCallback(HLCS_SelfTestResultCallback callback)
 
 void HLCS_RequestLockedAsync()
 {
-    PushEvent(SIG_REQUEST_LOCKED);
+    HLCS_PushEvent(SIG_REQUEST_LOCKED);
 }
 
 void HLCS_RequestUnlockedAsync()
 {
-    PushEvent(SIG_REQUEST_UNLOCKED);
+    HLCS_PushEvent(SIG_REQUEST_UNLOCKED);
 }
 
 void HLCS_RequestSelfTestAsync()
 {
-    PushEvent(SIG_REQUEST_SELF_TEST);
+    HLCS_PushEvent(SIG_REQUEST_SELF_TEST);
 }
 
 bool HLCS_ProcessOneEvent(ExecutionOptionT option)
@@ -185,7 +185,7 @@ bool HLCS_ProcessOneEvent(ExecutionOptionT option)
     return true;
 }
 
-static void PushEvent(SignalT sig)
+void HLCS_PushEvent(SignalT sig)
 {
     HLCS_EventTypeT event =
       {
@@ -199,7 +199,7 @@ static void PushEvent(SignalT sig)
     }
 }
 
-void PushUrgentEvent(SignalT sig)
+void HLCS_PushUrgentEvent(SignalT sig)
 {
     HLCS_EventTypeT event =
       {
@@ -212,6 +212,7 @@ void PushUrgentEvent(SignalT sig)
         assert(false);
     }
 }
+
 void HLCS_SmProcess(const HLCS_EventTypeT * event)
 {
     void* rtn = s_currentState(event);
@@ -366,11 +367,11 @@ void HLCS_PerformSelfTest()
     //
     if (s_stateHistory == HLCS_SmUnlocked)
     {
-        PushUrgentEvent(SIG_REQUEST_UNLOCKED);
+        HLCS_PushUrgentEvent(SIG_REQUEST_UNLOCKED);
     }
     else
     {
-        PushUrgentEvent(SIG_REQUEST_LOCKED);
+        HLCS_PushUrgentEvent(SIG_REQUEST_LOCKED);
     }
 }
 
