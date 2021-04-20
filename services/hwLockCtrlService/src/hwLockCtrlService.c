@@ -195,6 +195,7 @@ static void PushEvent(SignalT sig)
     if (!ok)
     {
         fprintf(stderr, "HLCS queue send failed for sig %d!\n", sig);
+        assert(false);
     }
 }
 
@@ -208,6 +209,7 @@ void PushUrgentEvent(SignalT sig)
     if (!ok)
     {
         fprintf(stderr, "HLCS queue send failed for sig %d!\n", sig);
+        assert(false);
     }
 }
 void HLCS_SmProcess(const HLCS_EventTypeT * event)
