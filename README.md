@@ -1,7 +1,7 @@
 # Basic Active Object Demo
 This project demonstrates a basic C module using an active object pattern.
 
-This project was created to provide an example code base supporting the following post: TODO
+This project was created to provide an example code base supporting the following post: https://covemountainsoftware.com/2021/04/20/what-is-an-active-object/
 
 The associated blog post details three elements required to implement an active object:
 
